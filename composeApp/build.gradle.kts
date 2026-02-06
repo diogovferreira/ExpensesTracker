@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.sqldelight)
 }
 
 kotlin {
@@ -37,7 +38,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.appcompat)
-
+            implementation(libs.sqldelight.driver.android)
         }
 
         commonMain.dependencies {
@@ -78,13 +79,23 @@ kotlin {
             //DATE TIME KMP
             implementation(libs.date.time.kmp)
 
+            //SQL DELIGHT
+            implementation(libs.sqldelight.coroutines)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
 
         iosMain.dependencies{
+            implementation(libs.sqldelight.driver.native)
+        }
+    }
+}
 
+sqldelight {
+    databases {
+        create("ExpenseDatabase") {
+            packageName.set("com.dfcoding.expensetracker.database")
         }
     }
 }

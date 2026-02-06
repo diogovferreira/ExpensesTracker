@@ -1,0 +1,47 @@
+CREATE TABLE Expense (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    amount REAL NOT NULL,
+    category TEXT NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
+    date INTEGER NOT NULL
+);
+
+-- Queries
+
+getAllExpenses:
+SELECT * FROM Expense
+ORDER BY date DESC;
+
+getExpenseById:
+SELECT * FROM Expense
+WHERE id = ?;
+
+insertExpense:
+INSERT INTO Expense(amount, category, description, date)
+VALUES (?, ?, ?, ?);
+
+updateExpense:
+UPDATE Expense
+SET amount = ?, category = ?, description = ?, date = ?
+WHERE id = ?;
+
+deleteExpense:
+DELETE FROM Expense
+WHERE id = ?;
+
+deleteAllExpenses:
+DELETE FROM Expense;
+
+getTotalAmount:
+SELECT SUM(amount) AS total FROM Expense;
+
+getTotalByCategory:
+SELECT category, SUM(amount) AS total
+FROM Expense
+GROUP BY category
+ORDER BY total DESC;
+
+getExpensesByDateRange:
+SELECT * FROM Expense
+WHERE date >= ? AND date <= ?
+ORDER BY date DESC;
