@@ -1,4 +1,4 @@
-rootProject.name = "ModelRepoCompose"
+rootProject.name = "ExpenseTracker"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
