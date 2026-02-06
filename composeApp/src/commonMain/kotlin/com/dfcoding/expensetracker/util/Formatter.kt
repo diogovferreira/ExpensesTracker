@@ -1,4 +1,4 @@
-package com.dfcoding.expensetracker.core.util
+package com.dfcoding.expensetracker.util
 
 //expect fun formatFiat(amount: Double, showDecimal: Boolean = true) : String
 

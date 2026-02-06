@@ -31,8 +31,6 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
-            implementation(libs.ktor.client.okhttp)
-            implementation(libs.ktor.client.android)
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
@@ -40,7 +38,6 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.appcompat)
 
-            implementation(libs.androidx.room.ktx)
         }
 
         commonMain.dependencies {
@@ -55,12 +52,6 @@ kotlin {
             implementation(libs.compose.ui)
             implementation(libs.compose.runtime)
 
-            //HTTP CALLS - KTOR
-            implementation(libs.ktor.client.core)
-            implementation(libs.ktor.client.content.negotiation)
-            implementation(libs.ktor.serialization.kotlinx.json)
-            implementation(libs.ktor.client.logging)
-
             implementation(libs.kotlinx.coroutines.core)
 
             //COIL FOR IMAGE LOADING
@@ -73,10 +64,6 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.koin.core.viewmodel)
-
-            //ROOM
-            implementation(libs.androidx.room.runtime)
-            implementation(libs.androidx.sqlite.bundled)
 
             //LOGS CROSS PLATFORM
             implementation(libs.napier.logs)
@@ -97,7 +84,7 @@ kotlin {
         }
 
         iosMain.dependencies{
-            implementation(libs.ktor.client.darwin)
+
         }
     }
 }
