@@ -4,10 +4,9 @@ import com.dfcoding.expensetracker.data.local.ExpenseDatabaseWrapper
 import com.dfcoding.expensetracker.data.repository.ExpenseRepository
 import com.dfcoding.expensetracker.database.ExpenseDatabase
 import com.dfcoding.expensetracker.ui.list.ExpenseListViewModel
-import org.koin.core.context.startKoin
+import com.dfcoding.expensetracker.ui.screens.addedit.AddExpenseViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
-import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
 expect val platformModule: Module
@@ -21,9 +20,9 @@ val dataModule = module {
 }
 
 val viewModelModule = module {
-    viewModel {
-        ExpenseListViewModel(get())
-    }
+    viewModel { ExpenseListViewModel(get()) }
+    viewModel { (expenseId: Long?) -> AddExpenseViewModel(get(), expenseId) }
+
 }
 
 val appModules = listOf(dataModule, viewModelModule)

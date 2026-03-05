@@ -9,16 +9,37 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.dfcoding.expensetracker.domain.model.Expense
+import com.dfcoding.expensetracker.ui.addupdate.AddExpenseScreen
 import org.koin.compose.viewmodel.koinViewModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
+
+class ExpenseListScreen : Screen{
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+        val viewModel = koinViewModel<ExpenseListViewModel>()
+
+        ExpenseListContent(
+            viewModel = viewModel,
+            onAddExpense = { navigator.push(AddExpenseScreen()) },
+            onEditExpense = { expenseId -> navigator.push(AddExpenseScreen(expenseId)) }
+        )
+    }
+
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExpenseListScreen(
-    viewModel: ExpenseListViewModel = koinViewModel()
+fun ExpenseListContent(
+    viewModel: ExpenseListViewModel = koinViewModel(),
+    onAddExpense: () -> Unit = {},
+    onEditExpense: (Long) -> Unit = {}
 ) {
     val expenses by viewModel.expenses.collectAsState()
 
