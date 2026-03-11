@@ -5,5 +5,6 @@ data class Expense(
     val amount: Double,
     val category: ExpenseCategory,
     val description: String = "",
-    val date: Long  // Timestamp in milliseconds
+    val date: Long,  // Timestamp in milliseconds
+    val pocketId: Long? = null
 )

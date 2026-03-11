@@ -1,14 +1,37 @@
 package com.dfcoding.expensetracker.data.repository
 
 
+import coil3.annotation.Poko
 import com.dfcoding.expensetracker.data.local.ExpenseDatabaseWrapper
 import com.dfcoding.expensetracker.domain.model.Expense
 import com.dfcoding.expensetracker.domain.model.ExpenseCategory
+import com.dfcoding.expensetracker.domain.model.Pocket
 import kotlinx.coroutines.flow.Flow
 
 class ExpenseRepository(
     private val databaseWrapper: ExpenseDatabaseWrapper
 ) {
+
+    fun getAllPockets(): Flow<List<Pocket>> {
+        return databaseWrapper.getAllPockets()
+    }
+
+    fun getPocketById(id: Long): Flow<Pocket?> {
+        return databaseWrapper.getPocketById(id)
+    }
+
+    suspend fun addPocket(pocket: Pocket) {
+        databaseWrapper.insertPocket(pocket)
+    }
+
+    suspend fun updatePocket(pocket: Pocket) {
+        databaseWrapper.updatePocket(pocket)
+    }
+
+    suspend fun deletePocket(id: Long) {
+        databaseWrapper.deletePocket(id)
+    }
+
     fun getAllExpenses(): Flow<List<Expense>> {
         return databaseWrapper.getAllExpenses()
     }

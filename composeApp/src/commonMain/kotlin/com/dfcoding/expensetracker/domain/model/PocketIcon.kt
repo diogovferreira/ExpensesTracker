@@ -1,0 +1,14 @@
+package com.dfcoding.expensetracker.domain.model
+
+enum class PocketIcon(val emoji: String, val displayName: String) {
+    TRAVEL("✈️", "Travel"),
+    VACATION("🏖️", "Vacation"),
+    SHOPPING("🛍️", "Shopping"),
+    FOOD("🍔", "Food Trip"),
+    ENTERTAINMENT("🎬", "Entertainment"),
+    GIFT("🎁", "Gift"),
+    PROJECT("📊", "Project"),
+    EVENT("🎉", "Event"),
+    HEALTH("🏥", "Health"),
+    OTHER("📌", "Other")
+}

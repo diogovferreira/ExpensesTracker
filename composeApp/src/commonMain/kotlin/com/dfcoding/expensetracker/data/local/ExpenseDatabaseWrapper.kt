@@ -7,6 +7,7 @@ import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.dfcoding.expensetracker.database.ExpenseDatabase
 import com.dfcoding.expensetracker.domain.model.Expense
 import com.dfcoding.expensetracker.domain.model.ExpenseCategory
+import com.dfcoding.expensetracker.domain.model.Pocket
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -15,6 +16,40 @@ class ExpenseDatabaseWrapper(
     private val database: ExpenseDatabase
 ) {
     private val queries = database.expenseQueries
+
+    // Get all pockets as Flow
+    fun getAllPockets(): Flow<List<Pocket>>{
+        return queries.getAllPockets().asFlow().mapToList(Dispatchers.Default).map { pocketEntities ->
+            pocketEntities.map { it.toPocket() }
+         }
+    }
+
+    fun getPocketById(id: Long): Flow<Pocket?> {
+        return queries.getPocketById(id)
+            .asFlow()
+            .mapToOneOrNull(Dispatchers.Default)
+            .map { it?.toPocket() }
+    }
+
+    fun insertPocket(pocket: Pocket) {
+        queries.insertPocket(
+            name = pocket.name,
+            icon = pocket.icon,
+            date = pocket.date)
+    }
+
+    fun updatePocket(pocket: Pocket) {
+        queries.updatePocket(
+            name = pocket.name,
+            icon = pocket.icon,
+            date = pocket.date,
+            id = pocket.id
+        )
+    }
+
+    fun deletePocket(id: Long) {
+        queries.deletePocket(id)
+    }
 
     // Get all expenses as Flow
     fun getAllExpenses(): Flow<List<Expense>> {
@@ -40,7 +75,8 @@ class ExpenseDatabaseWrapper(
             amount = expense.amount,
             category = expense.category.name,
             description = expense.description,
-            date = expense.date
+            date = expense.date,
+            pocketId = expense.pocketId
         )
     }
 
@@ -51,7 +87,8 @@ class ExpenseDatabaseWrapper(
             category = expense.category.name,
             description = expense.description,
             date = expense.date,
-            id = expense.id
+            id = expense.id,
+            pocketId = expense.pocketId
         )
     }
 
@@ -86,6 +123,14 @@ class ExpenseDatabaseWrapper(
         amount = amount,
         category = ExpenseCategory.valueOf(category),
         description = description,
+        date = date,
+        pocketId = pocketId
+    )
+
+    private fun com.dfcoding.expensetracker.database.Pocket.toPocket() = Pocket(
+        id = id,
+        name = name,
+        icon = icon,
         date = date
     )
 }

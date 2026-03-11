@@ -1,12 +1,41 @@
+CREATE TABLE Pocket (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    name TEXT NOT NULL DEFAULT '',
+    icon TEXT NOT NULL,
+    date INTEGER NOT NULL
+);
+
 CREATE TABLE Expense (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     amount REAL NOT NULL,
     category TEXT NOT NULL,
     description TEXT NOT NULL DEFAULT '',
-    date INTEGER NOT NULL
+    date INTEGER NOT NULL,
+    pocketId INTEGER REFERENCES Pocket(id) ON DELETE CASCADE
 );
 
 -- Queries
+
+getAllPockets:
+SELECT * FROM Pocket
+ORDER BY date DESC;
+
+getPocketById:
+SELECT * FROM Pocket
+WHERE id = ?;
+
+insertPocket:
+INSERT INTO Pocket(name,icon,date)
+VALUES(?,?,?);
+
+updatePocket:
+UPDATE Pocket
+SET name = ?, icon = ?, date = ?
+WHERE id = ?;
+
+deletePocket:
+DELETE FROM Pocket
+WHERE id = ?;
 
 getAllExpenses:
 SELECT * FROM Expense
@@ -17,12 +46,12 @@ SELECT * FROM Expense
 WHERE id = ?;
 
 insertExpense:
-INSERT INTO Expense(amount, category, description, date)
-VALUES (?, ?, ?, ?);
+INSERT INTO Expense(amount, category, description, date, pocketId)
+VALUES (?, ?, ?, ?,?);
 
 updateExpense:
 UPDATE Expense
-SET amount = ?, category = ?, description = ?, date = ?
+SET amount = ?, category = ?, description = ?, date = ?, pocketId = ?
 WHERE id = ?;
 
 deleteExpense:

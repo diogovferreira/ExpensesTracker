@@ -35,6 +35,7 @@ import com.dfcoding.expensetracker.domain.model.ExpenseCategory
 import com.dfcoding.expensetracker.ui.screens.addedit.AddExpenseViewModel
 import io.ktor.http.parameters
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.ParametersHolder
 
 
 data class AddExpenseScreen(
@@ -43,7 +44,7 @@ data class AddExpenseScreen(
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val viewModel = koinViewModel<AddExpenseViewModel>{ parameters(expenseId) }
+        val viewModel = koinViewModel<AddExpenseViewModel>()
 
         AddExpenseContent(
             viewModel = viewModel,
