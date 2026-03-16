@@ -2,7 +2,8 @@ CREATE TABLE Pocket (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     name TEXT NOT NULL DEFAULT '',
     icon TEXT NOT NULL,
-    date INTEGER NOT NULL
+    date INTEGER NOT NULL,
+    currency TEXT NOT NULL
 );
 
 CREATE TABLE Expense (
@@ -25,12 +26,12 @@ SELECT * FROM Pocket
 WHERE id = ?;
 
 insertPocket:
-INSERT INTO Pocket(name,icon,date)
-VALUES(?,?,?);
+INSERT INTO Pocket(name,icon,date,currency)
+VALUES(?,?,?,?);
 
 updatePocket:
 UPDATE Pocket
-SET name = ?, icon = ?, date = ?
+SET name = ?, icon = ?, date = ?, currency = ?
 WHERE id = ?;
 
 deletePocket:

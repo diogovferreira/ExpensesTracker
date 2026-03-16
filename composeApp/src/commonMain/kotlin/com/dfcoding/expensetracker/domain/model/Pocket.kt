@@ -5,6 +5,7 @@ data class Pocket(
     val name: String = "",
     val icon: String,
     val date: Long,
+    val currency: String
 )
 
 data class PocketTotal(

@@ -35,7 +35,9 @@ class ExpenseDatabaseWrapper(
         queries.insertPocket(
             name = pocket.name,
             icon = pocket.icon,
-            date = pocket.date)
+            date = pocket.date,
+            currency = pocket.currency
+        )
     }
 
     fun updatePocket(pocket: Pocket) {
@@ -43,7 +45,8 @@ class ExpenseDatabaseWrapper(
             name = pocket.name,
             icon = pocket.icon,
             date = pocket.date,
-            id = pocket.id
+            id = pocket.id,
+            currency = pocket.currency
         )
     }
 
@@ -131,6 +134,7 @@ class ExpenseDatabaseWrapper(
         id = id,
         name = name,
         icon = icon,
-        date = date
+        date = date,
+        currency = currency
     )
 }

@@ -1,0 +1,318 @@
+package com.dfcoding.expensetracker.ui.addpocket
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import com.dfcoding.expensetracker.domain.model.PocketIcon
+import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
+
+class AddPocketScreen : Screen {
+
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+        val viewModel = koinViewModel<AddPocketViewModel>()
+
+        AddPocketContent(
+            goBack = { navigator.pop() },
+            onSavePocketButtonClick = { name, currency, icon ->
+                viewModel.addPocket(name = name, icon = icon, currency = currency)
+                navigator.pop()
+            })
+    }
+
+}
+
+@Preview
+@Composable
+fun AddPocketContent(
+    goBack: () -> Unit = {},
+    onSavePocketButtonClick: (String, String, String) -> Unit = { _, _, _ -> }
+) {
+
+    var pocketName by remember { mutableStateOf("") }
+    var selectedCurrency by remember { mutableStateOf("EUR") }
+    var selectedIcon by remember { mutableStateOf(PocketIcon.VACATION) }
+    var showIconPicker by remember { mutableStateOf(false) }
+
+    Surface(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.navigationBars)) {
+        Column(modifier = Modifier.fillMaxSize().padding(32.dp)) {
+
+            // Header
+            Row(
+                modifier = Modifier.wrapContentSize(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = Modifier.clickable { goBack() },
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Text("New Pocket", style = MaterialTheme.typography.headlineSmall)
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Form card
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.inverseOnSurface)
+                    .padding(12.dp)
+            ) {
+                Text("Name", style = MaterialTheme.typography.labelLarge)
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Box(
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surface)
+                            .clickable { showIconPicker = true },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = selectedIcon.emoji, fontSize = 20.sp)
+                    }
+
+                    if (showIconPicker) {
+                        IconPickerBottomSheet(
+                            selectedIcon = selectedIcon,
+                            onIconSelected = {
+                                selectedIcon = it
+                                showIconPicker = false
+                            },
+                            onDismiss = { showIconPicker = false }
+                        )                    }
+                    TextField(
+                        value = pocketName,
+                        onValueChange = { pocketName = it },
+                        placeholder = { Text("Pocket name...") },
+                        singleLine = true,
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                        ),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(56.dp)
+                            .padding(start = 10.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text("Currency", style = MaterialTheme.typography.labelLarge)
+                CurrencyDropDown(
+                    selectedCurrency = selectedCurrency,
+                    onCurrencySelected = { selectedCurrency = it }
+                )
+            }
+
+            // This spacer pushes the button to the bottom
+            Spacer(modifier = Modifier.weight(1f))
+
+            Button(
+                onClick = {
+                    onSavePocketButtonClick(
+                        pocketName,
+                        selectedCurrency,
+                        selectedIcon.emoji
+                    )
+                },
+                modifier = Modifier.fillMaxWidth().height(56.dp),
+                shape = RoundedCornerShape(12.dp),
+                enabled = pocketName.isNotEmpty(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            ) {
+                Text("Save Pocket")
+            }
+        }
+    }
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CurrencyDropDown(
+    selectedCurrency: String = "EUR",
+    onCurrencySelected: (String) -> Unit = {}
+) {
+
+    var expanded by remember { mutableStateOf(false) }
+
+    val currencies = listOf("EUR", "USD", "GBP", "CHF", "JPY")
+
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = selectedCurrency,
+            onValueChange = {},
+            readOnly = true, // user can't type, only select
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
+            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface)
+                .menuAnchor() // this links the TextField to the dropdown
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            currencies.forEach { currency ->
+                DropdownMenuItem(
+                    text = { Text(currency) },
+                    onClick = {
+                        onCurrencySelected(currency)
+                        expanded = false
+                    },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+fun IconPickerBottomSheet(
+    selectedIcon: PocketIcon,
+    onIconSelected: (PocketIcon) -> Unit = {},
+    onDismiss: () -> Unit = {}
+) {
+
+    ModalBottomSheet(onDismissRequest = onDismiss){
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Choose an Icon",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(4),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.padding(bottom = 24.dp)
+            ) {
+                items(PocketIcon.entries) { icon ->
+                    IconGridItem(
+                        icon = icon,
+                        isSelected = icon == selectedIcon,
+                        onIconSelected = { onIconSelected(icon) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun IconGridItem(
+    icon: PocketIcon,
+    isSelected: Boolean,
+    onIconSelected: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = Modifier.clickable { onIconSelected() }
+    ) {
+        Box(
+            modifier = Modifier
+                .size(56.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(
+                    if (isSelected) MaterialTheme.colorScheme.primaryContainer
+                    else MaterialTheme.colorScheme.surfaceContainer
+                )
+                .then(
+                    if (isSelected) Modifier.border(
+                        width = 2.dp,
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(12.dp)
+                    ) else Modifier
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = icon.emoji, fontSize = 24.sp)
+        }
+
+        Text(
+            text = icon.displayName,
+            style = MaterialTheme.typography.labelSmall,
+            color = if (isSelected) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}

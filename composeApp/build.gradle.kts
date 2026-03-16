@@ -81,6 +81,10 @@ kotlin {
 
             //SQL DELIGHT
             implementation(libs.sqldelight.coroutines)
+
+            //Icons
+            implementation(compose.materialIconsExtended)
+
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

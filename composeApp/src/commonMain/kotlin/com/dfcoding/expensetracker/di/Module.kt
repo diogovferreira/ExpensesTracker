@@ -3,6 +3,7 @@ package com.dfcoding.expensetracker.di
 import com.dfcoding.expensetracker.data.local.ExpenseDatabaseWrapper
 import com.dfcoding.expensetracker.data.repository.ExpenseRepository
 import com.dfcoding.expensetracker.database.ExpenseDatabase
+import com.dfcoding.expensetracker.ui.addpocket.AddPocketViewModel
 import com.dfcoding.expensetracker.ui.list.ExpenseListViewModel
 import com.dfcoding.expensetracker.ui.pockets.PocketListViewModel
 import com.dfcoding.expensetracker.ui.screens.addedit.AddExpenseViewModel
@@ -24,6 +25,7 @@ val viewModelModule = module {
     viewModel { ExpenseListViewModel(get()) }
     viewModel { (expenseId: Long?) -> AddExpenseViewModel(get(), expenseId) }
     viewModel { PocketListViewModel(get()) }
+    viewModel { AddPocketViewModel(get()) }
 
 }
 
