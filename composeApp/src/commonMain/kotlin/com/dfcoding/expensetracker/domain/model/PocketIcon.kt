@@ -1,6 +1,7 @@
 package com.dfcoding.expensetracker.domain.model
 
-enum class PocketIcon(val emoji: String, val displayName: String) {
+enum class PocketIcon(override val emoji: String, override val displayName: String) :
+    SelectableIcon {
     TRAVEL("✈️", "Travel"),
     VACATION("🏖️", "Vacation"),
     SHOPPING("🛍️", "Shopping"),

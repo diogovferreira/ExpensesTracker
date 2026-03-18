@@ -54,6 +54,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.dfcoding.expensetracker.domain.model.Pocket
 import com.dfcoding.expensetracker.domain.model.PocketIcon
+import com.dfcoding.expensetracker.ui.components.IconPickerBottomSheet
+import com.dfcoding.expensetracker.ui.components.LongButton
 import com.dfcoding.expensetracker.ui.components.ScreenHeader
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -71,7 +73,12 @@ class AddPocketScreen(val pocket: Pocket? = null) : Screen {
                 if (pocket == null) {
                     viewModel.addPocket(name = name, icon = icon, currency = currency)
                 } else {
-                    viewModel.updatePocket(id = pocket.id, name = name, icon = icon, currency = currency)
+                    viewModel.updatePocket(
+                        id = pocket.id,
+                        name = name,
+                        icon = icon,
+                        currency = currency
+                    )
                 }
                 navigator.pop()
             },
@@ -109,7 +116,6 @@ fun AddPocketContent(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Form card
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -132,11 +138,9 @@ fun AddPocketContent(
 
                     if (showIconPicker) {
                         IconPickerBottomSheet(
+                            icons = PocketIcon.entries,
                             selectedIcon = selectedIcon,
-                            onIconSelected = {
-                                selectedIcon = it
-                                showIconPicker = false
-                            },
+                            onIconSelected = { selectedIcon = it },
                             onDismiss = { showIconPicker = false }
                         )
                     }
@@ -171,26 +175,17 @@ fun AddPocketContent(
             // This spacer pushes the button to the bottom
             Spacer(modifier = Modifier.weight(1f))
 
-            Button(
-                onClick = {
+            LongButton(
+                text = if (isEditing) "Update Pocket" else "Save Pocket",
+                onButtonClick = {
                     onSavePocketButtonClick(
                         pocketName,
                         selectedCurrency,
                         selectedIcon.emoji
                     )
                 },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                enabled = pocketName.isNotEmpty(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            ) {
-                Text(if (isEditing) "Update Pocket" else "Save Pocket")
-            }
+                isEnabled = pocketName.isNotEmpty()
+            )
         }
     }
 
@@ -244,81 +239,3 @@ fun CurrencyDropDown(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview
-@Composable
-fun IconPickerBottomSheet(
-    selectedIcon: PocketIcon,
-    onIconSelected: (PocketIcon) -> Unit = {},
-    onDismiss: () -> Unit = {}
-) {
-
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Choose an Icon",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(4),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.padding(bottom = 24.dp)
-            ) {
-                items(PocketIcon.entries) { icon ->
-                    IconGridItem(
-                        icon = icon,
-                        isSelected = icon == selectedIcon,
-                        onIconSelected = { onIconSelected(icon) }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun IconGridItem(
-    icon: PocketIcon,
-    isSelected: Boolean,
-    onIconSelected: () -> Unit
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        modifier = Modifier.clickable { onIconSelected() }
-    ) {
-        Box(
-            modifier = Modifier
-                .size(56.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(
-                    if (isSelected) MaterialTheme.colorScheme.primaryContainer
-                    else MaterialTheme.colorScheme.surfaceContainer
-                )
-                .then(
-                    if (isSelected) Modifier.border(
-                        width = 2.dp,
-                        color = MaterialTheme.colorScheme.primary,
-                        shape = RoundedCornerShape(12.dp)
-                    ) else Modifier
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text = icon.emoji, fontSize = 24.sp)
-        }
-
-        Text(
-            text = icon.displayName,
-            style = MaterialTheme.typography.labelSmall,
-            color = if (isSelected) MaterialTheme.colorScheme.primary
-            else MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
