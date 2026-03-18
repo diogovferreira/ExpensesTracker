@@ -54,6 +54,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.dfcoding.expensetracker.domain.model.Pocket
 import com.dfcoding.expensetracker.domain.model.PocketIcon
+import com.dfcoding.expensetracker.ui.components.ScreenHeader
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -101,21 +102,10 @@ fun AddPocketContent(
         Column(modifier = Modifier.fillMaxSize().padding(32.dp)) {
 
             // Header
-            Row(
-                modifier = Modifier.wrapContentSize(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    modifier = Modifier.clickable { goBack() },
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    if (isEditing) "Edit Pocket" else "New Pocket",
-                    style = MaterialTheme.typography.headlineSmall
-                )
-            }
+            ScreenHeader(
+                title = if (isEditing) "Edit Pocket" else "New Pocket",
+                onBackClick = goBack
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 

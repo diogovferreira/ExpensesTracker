@@ -1,7 +1,20 @@
 package com.dfcoding.expensetracker.ui.pockets
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,6 +48,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.dfcoding.expensetracker.domain.model.Pocket
 import com.dfcoding.expensetracker.ui.addpocket.AddPocketScreen
+import com.dfcoding.expensetracker.ui.list.ExpenseListScreen
 import com.dfcoding.expensetracker.util.Formatter
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -54,6 +68,9 @@ class PocketScreen : Screen {
             },
             onDeletePocket = { id ->
                 viewModel.deletePocket(id)
+            },
+            onPocketClick = { pocket ->
+                navigator.push(ExpenseListScreen(pocket))
             })
     }
 }
@@ -64,7 +81,8 @@ fun PocketListContent(
     viewModel: PocketListViewModel = koinViewModel(),
     onAddPocket: () -> Unit = {},
     onEditPocket: (Long) -> Unit = {},
-    onDeletePocket: (Long) -> Unit = {}
+    onDeletePocket: (Long) -> Unit = {},
+    onPocketClick: (Pocket) -> Unit = {}
 ) {
 
     val pockets by viewModel.pockets.collectAsState()
@@ -98,7 +116,8 @@ fun PocketListContent(
                 PocketItem(
                     pocket = pocket,
                     onDeletePocket = onDeletePocket,
-                    onEditPocket = onEditPocket
+                    onEditPocket = onEditPocket,
+                    onPocketClick = onPocketClick
                 )
             }
         }
@@ -106,11 +125,11 @@ fun PocketListContent(
 }
 
 @Composable
-fun PocketItem(pocket: Pocket, onDeletePocket: (Long) -> Unit, onEditPocket: (Long) -> Unit) {
+fun PocketItem(pocket: Pocket, onDeletePocket: (Long) -> Unit, onEditPocket: (Long) -> Unit, onPocketClick: (Pocket) -> Unit) {
 
     var showMenu by remember { mutableStateOf(false) }
 
-    Card(modifier = Modifier.fillMaxWidth().height(100.dp)) {
+    Card(modifier = Modifier.fillMaxWidth().height(100.dp).clickable { onPocketClick(pocket) }) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier.size(48.dp).clip(RoundedCornerShape(2.dp))

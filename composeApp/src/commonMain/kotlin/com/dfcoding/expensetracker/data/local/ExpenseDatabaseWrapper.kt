@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class ExpenseDatabaseWrapper(
-    private val database: ExpenseDatabase
+    database: ExpenseDatabase
 ) {
     private val queries = database.expenseQueries
 
