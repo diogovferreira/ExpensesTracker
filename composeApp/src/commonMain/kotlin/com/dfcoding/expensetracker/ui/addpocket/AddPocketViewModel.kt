@@ -21,4 +21,18 @@ class AddPocketViewModel(private val repository: ExpenseRepository) : ViewModel(
 
         }
     }
+
+    fun updatePocket(id: Long, name: String, icon: String,currency: String){
+        viewModelScope.launch {
+            val pocket  = Pocket(
+                id = id,
+                name = name,
+                icon = icon,
+                date = Clock.System.now().toEpochMilliseconds(),
+                currency = currency
+            )
+            repository.updatePocket(pocket)
+
+        }
+    }
 }

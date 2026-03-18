@@ -17,25 +17,13 @@ class PocketListViewModel(private val repository: ExpenseRepository) : ViewModel
         initialValue = emptyList()
     )
 
-    fun addPocket(pocket: Pocket) {
-        viewModelScope.launch {
-            repository.addPocket(pocket)
-        }
+    fun getPocketById(id: Long): Pocket? {
+        return pockets.value.find { it.id == id }
     }
-
-    fun updatePocket(pocket: Pocket) {
-        viewModelScope.launch {
-            repository.updatePocket(pocket)
-        }
-    }
-
 
     fun deletePocket(id: Long) {
         viewModelScope.launch {
             repository.deletePocket(id)
         }
     }
-
-
-
 }

@@ -11,4 +11,6 @@ enum class PocketIcon(val emoji: String, val displayName: String) {
     EVENT("🎉", "Event"),
     HEALTH("🏥", "Health"),
     OTHER("📌", "Other")
+
 }
+

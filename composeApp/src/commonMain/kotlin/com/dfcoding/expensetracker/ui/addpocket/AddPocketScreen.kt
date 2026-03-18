@@ -52,11 +52,12 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.dfcoding.expensetracker.domain.model.Pocket
 import com.dfcoding.expensetracker.domain.model.PocketIcon
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
-class AddPocketScreen : Screen {
+class AddPocketScreen(val pocket: Pocket? = null) : Screen {
 
     @Composable
     override fun Content() {
@@ -66,9 +67,15 @@ class AddPocketScreen : Screen {
         AddPocketContent(
             goBack = { navigator.pop() },
             onSavePocketButtonClick = { name, currency, icon ->
-                viewModel.addPocket(name = name, icon = icon, currency = currency)
+                if (pocket == null) {
+                    viewModel.addPocket(name = name, icon = icon, currency = currency)
+                } else {
+                    viewModel.updatePocket(id = pocket.id, name = name, icon = icon, currency = currency)
+                }
                 navigator.pop()
-            })
+            },
+            pocket = pocket
+        )
     }
 
 }
@@ -76,13 +83,18 @@ class AddPocketScreen : Screen {
 @Preview
 @Composable
 fun AddPocketContent(
+    pocket: Pocket? = null,
     goBack: () -> Unit = {},
     onSavePocketButtonClick: (String, String, String) -> Unit = { _, _, _ -> }
 ) {
 
-    var pocketName by remember { mutableStateOf("") }
-    var selectedCurrency by remember { mutableStateOf("EUR") }
-    var selectedIcon by remember { mutableStateOf(PocketIcon.VACATION) }
+    val isEditing = pocket != null
+
+    var pocketName by remember { mutableStateOf(pocket?.name ?: "") }
+    var selectedCurrency by remember { mutableStateOf(pocket?.currency ?: "EUR") }
+    var selectedIcon by remember {
+        mutableStateOf(PocketIcon.entries.find { it.emoji == pocket?.icon } ?: PocketIcon.VACATION)
+    }
     var showIconPicker by remember { mutableStateOf(false) }
 
     Surface(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.navigationBars)) {
@@ -99,7 +111,10 @@ fun AddPocketContent(
                     contentDescription = "Back",
                 )
                 Spacer(modifier = Modifier.width(16.dp))
-                Text("New Pocket", style = MaterialTheme.typography.headlineSmall)
+                Text(
+                    if (isEditing) "Edit Pocket" else "New Pocket",
+                    style = MaterialTheme.typography.headlineSmall
+                )
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -133,7 +148,8 @@ fun AddPocketContent(
                                 showIconPicker = false
                             },
                             onDismiss = { showIconPicker = false }
-                        )                    }
+                        )
+                    }
                     TextField(
                         value = pocketName,
                         onValueChange = { pocketName = it },
@@ -183,7 +199,7 @@ fun AddPocketContent(
                     disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             ) {
-                Text("Save Pocket")
+                Text(if (isEditing) "Update Pocket" else "Save Pocket")
             }
         }
     }
@@ -247,7 +263,7 @@ fun IconPickerBottomSheet(
     onDismiss: () -> Unit = {}
 ) {
 
-    ModalBottomSheet(onDismissRequest = onDismiss){
+    ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()

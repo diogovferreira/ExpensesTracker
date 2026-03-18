@@ -42,10 +42,10 @@ class ExpenseDatabaseWrapper(
 
     fun updatePocket(pocket: Pocket) {
         queries.updatePocket(
+            id = pocket.id,
             name = pocket.name,
             icon = pocket.icon,
             date = pocket.date,
-            id = pocket.id,
             currency = pocket.currency
         )
     }
