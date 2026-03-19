@@ -1,5 +1,6 @@
 package com.dfcoding.expensetracker.ui.list
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
@@ -29,7 +31,7 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 
-class ExpenseListScreen(val pocket: Pocket) : Screen{
+class ExpenseListScreen(val pocket: Pocket) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
@@ -39,12 +41,13 @@ class ExpenseListScreen(val pocket: Pocket) : Screen{
             viewModel = viewModel,
             onAddExpense = { navigator.push(AddExpenseScreen()) },
             onEditExpense = { expenseId -> navigator.push(AddExpenseScreen(expenseId)) },
-            onDeleteExpense = {id -> viewModel.deleteExpense(id)},
+            onDeleteExpense = { id -> viewModel.deleteExpense(id) },
             onNavigateBack = { navigator.pop() }
         )
     }
 
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
@@ -77,8 +80,8 @@ fun ExpenseListContentStateless(
 ) {
 
 
-
     Scaffold(
+        modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.navigationBars),
         floatingActionButton = {
             Column(
                 horizontalAlignment = Alignment.End,
@@ -95,91 +98,89 @@ fun ExpenseListContentStateless(
         }
     ) { padding ->
 
-        Surface(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.navigationBars),) {
-            Column(modifier = Modifier.fillMaxSize().padding(32.dp)) {
+        Column(modifier = Modifier.fillMaxSize().padding(32.dp)) {
 
-                // Header
-                ScreenHeader(
-                    title = "Expense List",
-                    onBackClick = onNavigateBack
-                )
+            // Header
+            ScreenHeader(
+                title = "Expense List",
+                onBackClick = onNavigateBack
+            )
 
-                if (expenses.isEmpty()) {
-                    // Empty state
-                    Box(
+            if (expenses.isEmpty()) {
+                // Empty state
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Text(
+                            "No expenses yet! 💰",
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            "Tap the + button to add test expenses",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            } else {
+                // List of expenses
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                ) {
+                    // Total amount card
+                    Card(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(padding),
-                        contentAlignment = Alignment.Center
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
+                        )
                     ) {
                         Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                            modifier = Modifier.padding(16.dp)
                         ) {
                             Text(
-                                "No expenses yet! 💰",
-                                style = MaterialTheme.typography.headlineSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                "Total Expenses",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                             Text(
-                                "Tap the + button to add test expenses",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                "$${expenses.sumOf { it.amount }}",
+                                style = MaterialTheme.typography.headlineLarge,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                            Text(
+                                "${expenses.size} expense${if (expenses.size != 1) "s" else ""}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
                     }
-                } else {
-                    // List of expenses
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(padding)
-                    ) {
-                        // Total amount card
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer
-                            )
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp)
-                            ) {
-                                Text(
-                                    "Total Expenses",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                                Text(
-                                    "$${expenses.sumOf { it.amount }}",
-                                    style = MaterialTheme.typography.headlineLarge,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                                Text(
-                                    "${expenses.size} expense${if (expenses.size != 1) "s" else ""}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                            }
-                        }
 
-                        // Expense list
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(
-                                items = expenses,
-                                key = { it.id }
-                            ) { expense ->
-                                ExpenseItem(
-                                    expense = expense,
-                                    onDelete = { onDeleteExpense(expense.id) }
-                                )
-                            }
+                    // Expense list
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            items = expenses,
+                            key = { it.id }
+                        ) { expense ->
+                            ExpenseItem(
+                                expense = expense,
+                                onDelete = { onDeleteExpense(expense.id) }
+                            )
                         }
                     }
                 }
@@ -274,8 +275,20 @@ fun ExpenseListPreview() {
     MaterialTheme {
         ExpenseListContentStateless(
             expenses = listOf(
-                Expense(id = 1, amount = 50.0, category = ExpenseCategory.FOOD, description = "Lunch", date = Clock.System.now().toEpochMilliseconds()),
-                Expense(id = 2, amount = 120.0, category = ExpenseCategory.TRANSPORT, description = "Uber", date = Clock.System.now().toEpochMilliseconds())
+                Expense(
+                    id = 1,
+                    amount = 50.0,
+                    category = ExpenseCategory.FOOD,
+                    description = "Lunch",
+                    date = Clock.System.now().toEpochMilliseconds()
+                ),
+                Expense(
+                    id = 2,
+                    amount = 120.0,
+                    category = ExpenseCategory.TRANSPORT,
+                    description = "Uber",
+                    date = Clock.System.now().toEpochMilliseconds()
+                )
             ),
             onAddExpense = {},
             onEditExpense = {},

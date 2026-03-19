@@ -209,20 +209,3 @@ fun PocketItem(pocket: Pocket, onDeletePocket: (Long) -> Unit, onEditPocket: (Lo
         }
     }
 }
-
-
-/*@Preview
-@Composable
-fun PocketItemPreview() {
-    MaterialTheme {
-        PocketItem(
-            pocket = Pocket(
-                id = 1,
-                name = "Trip to Thailand",
-                icon = "✈️",
-                date = Clock.System.now().toEpochMilliseconds(),
-                currency = "EUR"
-            )
-        )
-    }
-}*/
