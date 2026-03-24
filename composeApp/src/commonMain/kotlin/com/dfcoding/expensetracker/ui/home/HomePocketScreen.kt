@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.dfcoding.expensetracker.database.Expense
 import com.dfcoding.expensetracker.domain.model.Pocket
 import com.dfcoding.expensetracker.ui.addpocket.AddPocketScreen
 import com.dfcoding.expensetracker.ui.list.ExpenseListScreen
@@ -100,9 +101,14 @@ fun HomeScreen(
 ) {
 
     val pockets by viewModel.pockets.collectAsState()
+    val numberOfExpenses by viewModel.totalNumberOfExpenses.collectAsState()
+    val totalExpensesAmount by viewModel.totalAmount.collectAsState()
+
 
     HomeScreenStateless(
         pockets = pockets,
+        expensesTotal = numberOfExpenses,
+        expensesTotalAmount = totalExpensesAmount,
         onAddPocket = onAddPocket,
         onEditPocket = onEditPocket,
         onDeletePocket = onDeletePocket,
@@ -114,6 +120,8 @@ fun HomeScreen(
 @Preview
 fun HomeScreenStateless(
     pockets: List<Pocket>,
+    expensesTotal: Double,
+    expensesTotalAmount: Double,
     onAddPocket: () -> Unit = {},
     onEditPocket: (Long) -> Unit = {},
     onDeletePocket: (Long) -> Unit = {},
@@ -186,7 +194,7 @@ fun HomeScreenStateless(
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
-                                "122 euros",
+                                text = "$expensesTotalAmount €",
                                 color = Color.White.copy(alpha = 0.85f),
                                 fontSize = 32.sp,
                                 fontFamily = FontFamily.Monospace,
@@ -206,7 +214,7 @@ fun HomeScreenStateless(
                                         fontWeight = FontWeight.SemiBold
                                     )
                                     Text(
-                                        "4",
+                                        pockets.size.toString(),
                                         color = Color.White,
                                         style = MaterialTheme.typography.displaySmall
                                     )
@@ -227,7 +235,7 @@ fun HomeScreenStateless(
                                         fontWeight = FontWeight.SemiBold
                                     )
                                     Text(
-                                        "20",
+                                        text = expensesTotal.toInt().toString(),
                                         color = Color.White,
                                         style = MaterialTheme.typography.displaySmall,
                                         fontFamily = FontFamily.Monospace,
@@ -444,7 +452,9 @@ fun HomeScreenPreview() {
             pockets = listOf(
                 Pocket(id = 1, name = "Home Expenses", icon = "🏠", date = 0L, currency = "USD"),
                 Pocket(id = 2, name = "Transport", icon = "🚗", date = 0L, currency = "EUR")
-            )
+            ),
+            expensesTotal = 100.0,
+            expensesTotalAmount = 200.0
         )
     }
 }

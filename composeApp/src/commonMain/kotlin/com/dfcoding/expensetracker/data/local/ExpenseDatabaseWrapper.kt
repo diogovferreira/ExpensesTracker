@@ -5,6 +5,7 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.dfcoding.expensetracker.database.ExpenseDatabase
+import com.dfcoding.expensetracker.database.GetTotalAmount
 import com.dfcoding.expensetracker.domain.model.Expense
 import com.dfcoding.expensetracker.domain.model.ExpenseCategory
 import com.dfcoding.expensetracker.domain.model.Pocket
@@ -105,7 +106,7 @@ class ExpenseDatabaseWrapper(
         return queries.getTotalAmount()
             .asFlow()
             .mapToOne(Dispatchers.Default)
-            .map { (it ?: 0.0) as Double }
+            .map { it.total ?: 0.0 }
     }
 
     // Get totals by category
@@ -118,6 +119,14 @@ class ExpenseDatabaseWrapper(
                     ExpenseCategory.valueOf(it.category) to (it.total ?: 0.0)
                 }
             }
+    }
+
+    // Get total amount
+    fun getTotalNumber(): Flow<Double> {
+        return queries.getTotalNumberOfExpenses()
+            .asFlow()
+            .mapToOne(Dispatchers.Default)
+            .map { it.toDouble() }
     }
 
     // Helper extension to convert DB entity to domain model

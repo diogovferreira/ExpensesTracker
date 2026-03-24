@@ -59,4 +59,9 @@ class ExpenseRepository(
     fun getTotalByCategory(): Flow<Map<ExpenseCategory, Double>> {
         return databaseWrapper.getTotalByCategory()
     }
+
+    fun getTotalNumberOfExpenses() : Flow<Double>{
+        return databaseWrapper.getTotalNumber()
+
+    }
 }

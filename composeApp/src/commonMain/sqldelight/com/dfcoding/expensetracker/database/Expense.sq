@@ -75,3 +75,9 @@ getExpensesByDateRange:
 SELECT * FROM Expense
 WHERE date >= ? AND date <= ?
 ORDER BY date DESC;
+
+getTotalNumberOfExpenses:
+SELECT COUNT(*) FROM Expense;
+
+
+
