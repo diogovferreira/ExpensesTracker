@@ -1,4 +1,4 @@
-package com.dfcoding.expensetracker.ui.pockets
+package com.dfcoding.expensetracker.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class PocketListViewModel(private val repository: ExpenseRepository) : ViewModel() {
+class HomePocketViewModel(private val repository: ExpenseRepository) : ViewModel() {
 
     val pockets: StateFlow<List<Pocket>> = repository.getAllPockets().stateIn(
         scope = viewModelScope,
