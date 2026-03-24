@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentSize
@@ -30,6 +32,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -47,6 +50,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
@@ -105,91 +110,111 @@ fun AddPocketContent(
     }
     var showIconPicker by remember { mutableStateOf(false) }
 
-    Surface(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.navigationBars)) {
-        Column(modifier = Modifier.fillMaxSize().padding(32.dp)) {
+    Box(modifier = Modifier.fillMaxSize().background(Color.White))
 
-            // Header
-            ScreenHeader(
-                title = if (isEditing) "Edit Pocket" else "New Pocket",
-                onBackClick = goBack
+    Column(
+        modifier = Modifier.fillMaxSize().padding(16.dp).statusBarsPadding()
+    ) {
+
+        // Header
+        ScreenHeader(
+            title = if (isEditing) "Edit Pocket" else "New Pocket",
+            onBackClick = goBack
+        )
+
+        HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.inverseOnSurface)
+                .padding(12.dp)
+        ) {
+            Text(
+                modifier = Modifier.padding(bottom = 10.dp),
+                text = "Pocket Details",
+                style = MaterialTheme.typography.labelLarge,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.SemiBold
             )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.inverseOnSurface)
-                    .padding(12.dp)
-            ) {
-                Text("Name", style = MaterialTheme.typography.labelLarge)
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    Box(
-                        modifier = Modifier
-                            .size(56.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surface)
-                            .clickable { showIconPicker = true },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = selectedIcon.emoji, fontSize = 20.sp)
-                    }
-
-                    if (showIconPicker) {
-                        IconPickerBottomSheet(
-                            icons = PocketIcon.entries,
-                            selectedIcon = selectedIcon,
-                            onIconSelected = { selectedIcon = it },
-                            onDismiss = { showIconPicker = false }
-                        )
-                    }
-                    TextField(
-                        value = pocketName,
-                        onValueChange = { pocketName = it },
-                        placeholder = { Text("Pocket name...") },
-                        singleLine = true,
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surface,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                        ),
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(56.dp)
-                            .padding(start = 10.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                    )
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surface)
+                        .clickable { showIconPicker = true },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = selectedIcon.emoji, fontSize = 20.sp)
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text("Currency", style = MaterialTheme.typography.labelLarge)
-                CurrencyDropDown(
-                    selectedCurrency = selectedCurrency,
-                    onCurrencySelected = { selectedCurrency = it }
+                if (showIconPicker) {
+                    IconPickerBottomSheet(
+                        icons = PocketIcon.entries,
+                        selectedIcon = selectedIcon,
+                        onIconSelected = { selectedIcon = it },
+                        onDismiss = { showIconPicker = false }
+                    )
+                }
+                TextField(
+                    value = pocketName,
+                    onValueChange = { pocketName = it },
+                    placeholder = { Text("Pocket name...") },
+                    singleLine = true,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                    ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp)
+                        .padding(start = 10.dp)
+                        .clip(RoundedCornerShape(12.dp))
                 )
             }
 
-            // This spacer pushes the button to the bottom
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(14.dp))
 
-            LongButton(
-                text = if (isEditing) "Update Pocket" else "Save Pocket",
-                onButtonClick = {
-                    onSavePocketButtonClick(
-                        pocketName,
-                        selectedCurrency,
-                        selectedIcon.emoji
-                    )
-                },
-                isEnabled = pocketName.isNotEmpty()
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Text(
+                modifier = Modifier.padding(bottom = 10.dp),
+                text = "Currency",
+                style = MaterialTheme.typography.labelLarge,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.SemiBold
+            )
+            CurrencyDropDown(
+                selectedCurrency = selectedCurrency,
+                onCurrencySelected = { selectedCurrency = it }
             )
         }
-    }
 
+        // This spacer pushes the button to the bottom
+        Spacer(modifier = Modifier.weight(1f))
+
+        LongButton(
+            modifier = Modifier.navigationBarsPadding(),
+            text = if (isEditing) "Update Pocket" else "Save Pocket",
+            onButtonClick = {
+                onSavePocketButtonClick(
+                    pocketName,
+                    selectedCurrency,
+                    selectedIcon.emoji
+                )
+            },
+            isEnabled = pocketName.isNotEmpty()
+        )
+    }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
