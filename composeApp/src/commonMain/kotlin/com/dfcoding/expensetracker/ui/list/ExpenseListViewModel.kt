@@ -5,15 +5,17 @@ import androidx.lifecycle.viewModelScope
 import com.dfcoding.expensetracker.data.repository.ExpenseRepository
 import com.dfcoding.expensetracker.domain.model.Expense
 import com.dfcoding.expensetracker.domain.model.ExpenseCategory
+import com.dfcoding.expensetracker.util.Formatter
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 
 class ExpenseListViewModel(
     private val repository: ExpenseRepository
-) : ViewModel(){
+) : ViewModel() {
 
     val expenses: StateFlow<List<Expense>> = repository.getAllExpenses()
         .stateIn(
@@ -22,19 +24,12 @@ class ExpenseListViewModel(
             initialValue = emptyList()
         )
 
-    fun addTestExpense(){
-        viewModelScope.launch {
-            val testExpense = Expense(
-                id = 0,
-                amount = 100.0,
-                category = ExpenseCategory.FOOD,
-                date = Clock.System.now().toEpochMilliseconds(),
-                description = "This is a test expense"
-            )
-            repository.addExpense(testExpense)
-
-        }
-    }
+    val groupedExpenses: StateFlow<List<ExpenseListItem>> =
+        expenses.map { it.groupedByDate() }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     fun deleteExpense(id: Long) {
         viewModelScope.launch {
@@ -42,17 +37,12 @@ class ExpenseListViewModel(
         }
     }
 
-    // Add multiple test expenses
-    fun addMultipleTestExpenses() {
-        viewModelScope.launch {
-            listOf(
-                Expense(0, 45.00, ExpenseCategory.FOOD, "Dinner", Clock.System.now().toEpochMilliseconds()),
-                Expense(0, 12.50, ExpenseCategory.TRANSPORT, "Uber", Clock.System.now().toEpochMilliseconds()),
-                Expense(0, 89.99, ExpenseCategory.SHOPPING, "New shoes", Clock.System.now().toEpochMilliseconds()),
-                Expense(0, 15.00, ExpenseCategory.ENTERTAINMENT, "Movie tickets", Clock.System.now().toEpochMilliseconds())
-            ).forEach { expense ->
-                repository.addExpense(expense)
+
+    fun List<Expense>.groupedByDate(): List<ExpenseListItem> {
+        return groupBy { Formatter.formatDateHeader(it.date) }
+            .flatMap { (date, expenses) ->
+                listOf(ExpenseListItem.DateHeader(date)) +
+                        expenses.map { ExpenseListItem.ExpenseEntry(it) }
             }
-        }
     }
 }

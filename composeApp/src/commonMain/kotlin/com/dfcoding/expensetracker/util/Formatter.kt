@@ -37,4 +37,17 @@ object Formatter{
             .toLocalDateTime(TimeZone.currentSystemDefault()).date
         return inputDate == today
     }
+
+    fun formatDateHeader(epochMillis: Long): String {
+        val instant = Instant.fromEpochMilliseconds(epochMillis)
+        val localDate = instant.toLocalDateTime(TimeZone.currentSystemDefault()).date
+        val dayOfWeek = localDate.dayOfWeek.name
+            .lowercase()
+            .replaceFirstChar { it.uppercase() }
+        val month = localDate.month.name
+            .lowercase()
+            .replaceFirstChar { it.uppercase() }
+        return "$dayOfWeek, $month ${localDate.dayOfMonth}"
+        // Output: "Thursday, March 5"
+    }
 }
