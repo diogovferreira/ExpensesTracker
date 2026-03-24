@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -65,6 +66,7 @@ class ExpenseListScreen(val pocket: Pocket) : Screen {
 
         ExpenseListContent(
             viewModel = viewModel,
+            pocket = pocket,
             onAddExpense = { navigator.push(AddExpenseScreen()) },
             onEditExpense = { expenseId -> navigator.push(AddExpenseScreen(expenseId)) },
             onDeleteExpense = { id -> viewModel.deleteExpense(id) },
@@ -79,6 +81,7 @@ class ExpenseListScreen(val pocket: Pocket) : Screen {
 @Preview
 fun ExpenseListContent(
     viewModel: ExpenseListViewModel = koinViewModel(),
+    pocket: Pocket,
     onAddExpense: () -> Unit = {},
     onEditExpense: (Long) -> Unit = {},
     onDeleteExpense: (Long) -> Unit = {},
@@ -88,6 +91,7 @@ fun ExpenseListContent(
 
     ExpenseListContentStateless(
         groupedExpenses = groupedExpenses,
+        pocket = pocket,
         onAddExpense = onAddExpense,
         onEditExpense = onEditExpense,
         onDeleteExpense = onDeleteExpense,
@@ -99,18 +103,24 @@ fun ExpenseListContent(
 @Composable
 fun ExpenseListContentStateless(
     groupedExpenses: List<ExpenseListItem>,
+    pocket: Pocket,
     onAddExpense: () -> Unit,
     onEditExpense: (Long) -> Unit,
     onDeleteExpense: (Long) -> Unit,
     onNavigateBack: () -> Unit,
 ) {
-
+    val purpleGradient = Brush.verticalGradient(
+        colors = listOf(
+            MaterialTheme.colorScheme.primary,
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.7f) // fades out at bottom
+        )
+    )
 
     Box(modifier = Modifier.fillMaxSize()) {
         //PURPLE PART
         Box(
             modifier = Modifier.fillMaxWidth().fillMaxHeight(0.4f)
-                .background(MaterialTheme.colorScheme.primary)
+                .background(purpleGradient)
         )
 
         Box(modifier = Modifier.fillMaxSize())
@@ -118,7 +128,11 @@ fun ExpenseListContentStateless(
     Column(modifier = Modifier.fillMaxSize()) {
 
         // Header
-        ExpenseListHeader(onBackClick = onNavigateBack, groupedExpenses.filter { item -> item is ExpenseListItem.ExpenseEntry }.size.toString())
+        ExpenseListHeader(
+            onBackClick = onNavigateBack,
+            groupedExpenses.filter { item -> item is ExpenseListItem.ExpenseEntry }.size.toString(),
+            pocket = pocket
+        )
 
         Spacer(modifier = Modifier.height(10.dp))
 
@@ -276,7 +290,7 @@ fun ExpenseItem(
 
 @Composable
 @Preview
-fun ExpenseListHeader(onBackClick: () -> Unit,numberOfExpenses: String) {
+fun ExpenseListHeader(onBackClick: () -> Unit, numberOfExpenses: String, pocket: Pocket) {
 
     Row(modifier = Modifier.fillMaxWidth().padding(16.dp).statusBarsPadding()) {
         Box(
@@ -299,14 +313,14 @@ fun ExpenseListHeader(onBackClick: () -> Unit,numberOfExpenses: String) {
                 .background(Color.White.copy(0.2f)),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = PocketIcon.ENTERTAINMENT.emoji, fontSize = 24.sp)
+            Text(text = pocket.icon, fontSize = 24.sp)
         }
 
         Spacer(modifier = Modifier.width(16.dp))
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "Home Expenses",
+                text = pocket.name,
                 style = MaterialTheme.typography.titleMedium,
                 fontFamily = FontFamily.Monospace,
                 fontWeight = FontWeight.SemiBold,
@@ -346,10 +360,17 @@ fun ExpenseListPreview() {
 
                 )
             ),
-            onAddExpense = {},
-            onEditExpense = {},
-            onDeleteExpense = {},
-            onNavigateBack = {}
+            pocket = Pocket(
+                id = 1,
+                name = "Pocket 1",
+                icon = "💰",
+                date = 82828282828,
+                currency = "",
+        ),
+        onAddExpense = {},
+        onEditExpense = {},
+        onDeleteExpense = {},
+        onNavigateBack = {}
         )
     }
 }
