@@ -2,6 +2,7 @@ package com.dfcoding.expensetracker.ui.addupdate
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,13 +15,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -43,6 +51,8 @@ import com.dfcoding.expensetracker.domain.model.ExpenseCategory
 import com.dfcoding.expensetracker.ui.components.IconPickerBottomSheet
 import com.dfcoding.expensetracker.ui.components.LongButton
 import com.dfcoding.expensetracker.ui.components.ScreenHeader
+import com.dfcoding.expensetracker.util.Formatter
+import kotlinx.datetime.Clock
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.exp
@@ -58,19 +68,22 @@ data class AddExpenseScreen(
 
         AddExpenseContent(
             onNavigateBack = { navigator.pop() },
-            onSaveExpense = { amount, category, description ->
+            onSaveExpense = { amount, category, description, date ->
                 if (expense != null) {
                     viewModel.saveExpense(
                         id = expense.id,
                         amount = amount,
                         category = category,
-                        description = description
+                        description = description,
+                        date = date
+
                     )
-                }else{
+                } else {
                     viewModel.saveExpense(
                         amount = amount,
                         category = category,
-                        description = description
+                        description = description,
+                        date = date
                     )
                 }
             },
@@ -85,18 +98,19 @@ data class AddExpenseScreen(
 @Composable
 private fun AddExpenseContent(
     onNavigateBack: () -> Unit,
-    onSaveExpense: (Double, ExpenseCategory, String) -> Unit,
+    onSaveExpense: (Double, ExpenseCategory, String, Long) -> Unit,
     expense: Expense? = null
 ) {
 
 
     AddExpenseListContentStateless(
         onNavigateBack = onNavigateBack,
-        onSaveExpense = { amount, category, description ->
+        onSaveExpense = { amount, category, description, date ->
             onSaveExpense(
                 amount,
                 category,
-                description
+                description,
+                date
             )
         },
         expense
@@ -109,7 +123,7 @@ private fun AddExpenseContent(
 @Composable
 fun AddExpenseListContentStateless(
     onNavigateBack: () -> Unit,
-    onSaveExpense: (Double, ExpenseCategory, String) -> Unit,
+    onSaveExpense: (Double, ExpenseCategory, String, Long) -> Unit,
     expense: Expense? = null
 ) {
 
@@ -122,6 +136,13 @@ fun AddExpenseListContentStateless(
             ?: ExpenseCategory.FOOD)
     }
 
+    var selectedDate by remember {
+        mutableStateOf(
+            expense?.date ?: Clock.System.now().toEpochMilliseconds()
+        )
+    }
+
+    var showDatePicker by remember { mutableStateOf(false) }
     var showIconPicker by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize().background(Color.White))
@@ -192,6 +213,40 @@ fun AddExpenseListContentStateless(
 
             Spacer(modifier = Modifier.height(14.dp))
 
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    .clickable { showDatePicker = true }
+                    .padding(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = Formatter.formatDate(selectedDate),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontFamily = FontFamily.Monospace,
+                    )
+                    Icon(
+                        imageVector = Icons.Default.DateRange,
+                        contentDescription = "Pick date",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            if (showDatePicker) {
+                ExpenseDatePicker(
+                    selectedDate = selectedDate,
+                    onDateSelected = { selectedDate = it },
+                    onDismiss = { showDatePicker = false }
+                )
+            }
+
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
 
             Spacer(modifier = Modifier.height(14.dp))
@@ -224,11 +279,45 @@ fun AddExpenseListContentStateless(
             onButtonClick = {
                 val amountValue = amount.toDoubleOrNull()
                 if (amountValue != null && amountValue > 0) {
-                    onSaveExpense(amountValue, selectedCategory, description)
+                    onSaveExpense(amountValue, selectedCategory, description, selectedDate)
                     onNavigateBack()
                 }
             }
         )
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ExpenseDatePicker(
+    selectedDate: Long,
+    onDateSelected: (Long) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = selectedDate
+    )
+
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    datePickerState.selectedDateMillis?.let { onDateSelected(it) }
+                    onDismiss()
+                }
+            ) {
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    ) {
+        DatePicker(state = datePickerState)
     }
 }
 
@@ -238,6 +327,6 @@ fun AddExpenseScreenPreview() {
     MaterialTheme {
         AddExpenseListContentStateless(
             onNavigateBack = {},
-            onSaveExpense = { _, _, _ -> })
+            onSaveExpense = { _, _, _, _ -> })
     }
 }
