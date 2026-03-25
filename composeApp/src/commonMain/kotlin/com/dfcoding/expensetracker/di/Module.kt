@@ -6,7 +6,7 @@ import com.dfcoding.expensetracker.database.ExpenseDatabase
 import com.dfcoding.expensetracker.ui.addpocket.AddPocketViewModel
 import com.dfcoding.expensetracker.ui.list.ExpenseListViewModel
 import com.dfcoding.expensetracker.ui.home.HomePocketViewModel
-import com.dfcoding.expensetracker.ui.screens.addedit.AddExpenseViewModel
+import com.dfcoding.expensetracker.ui.addupdate.AddExpenseViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -23,7 +23,7 @@ val dataModule = module {
 
 val viewModelModule = module {
     viewModel { ExpenseListViewModel(get()) }
-    viewModel { (expenseId: Long?) -> AddExpenseViewModel(get(), expenseId) }
+    viewModel { AddExpenseViewModel(get()) }
     viewModel { HomePocketViewModel(get()) }
     viewModel { AddPocketViewModel(get()) }
 

@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,10 +49,8 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.dfcoding.expensetracker.domain.model.Expense
 import com.dfcoding.expensetracker.domain.model.ExpenseCategory
 import com.dfcoding.expensetracker.domain.model.Pocket
-import com.dfcoding.expensetracker.domain.model.PocketIcon
 import com.dfcoding.expensetracker.ui.addupdate.AddExpenseScreen
 import com.dfcoding.expensetracker.ui.components.LongButton
-import com.dfcoding.expensetracker.util.Formatter.formatDate
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Clock
@@ -68,7 +67,7 @@ class ExpenseListScreen(val pocket: Pocket) : Screen {
             viewModel = viewModel,
             pocket = pocket,
             onAddExpense = { navigator.push(AddExpenseScreen()) },
-            onEditExpense = { expenseId -> navigator.push(AddExpenseScreen(expenseId)) },
+            onEditExpense = { expense -> navigator.push(AddExpenseScreen(expense)) },
             onDeleteExpense = { id -> viewModel.deleteExpense(id) },
             onNavigateBack = { navigator.pop() }
         )
@@ -83,7 +82,7 @@ fun ExpenseListContent(
     viewModel: ExpenseListViewModel = koinViewModel(),
     pocket: Pocket,
     onAddExpense: () -> Unit = {},
-    onEditExpense: (Long) -> Unit = {},
+    onEditExpense: (Expense) -> Unit = {},
     onDeleteExpense: (Long) -> Unit = {},
     onNavigateBack: () -> Unit = {}
 ) {
@@ -105,7 +104,7 @@ fun ExpenseListContentStateless(
     groupedExpenses: List<ExpenseListItem>,
     pocket: Pocket,
     onAddExpense: () -> Unit,
-    onEditExpense: (Long) -> Unit,
+    onEditExpense: (Expense) -> Unit,
     onDeleteExpense: (Long) -> Unit,
     onNavigateBack: () -> Unit,
 ) {
@@ -214,7 +213,9 @@ fun ExpenseListContentStateless(
                             is ExpenseListItem.ExpenseEntry -> {
                                 ExpenseItem(
                                     expense = item.expense,
-                                    onDelete = { onDeleteExpense(item.expense.id) }
+                                    onDelete = { onDeleteExpense(item.expense.id) },
+                                    onEdit = { onEditExpense(item.expense) }
+
                                 )
 
                             }
@@ -232,10 +233,11 @@ fun ExpenseListContentStateless(
 @Composable
 fun ExpenseItem(
     expense: Expense,
-    onDelete: () -> Unit
+    onDelete: (Long) -> Unit,
+    onEdit: (Expense) -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth().wrapContentSize(),
+        modifier = Modifier.fillMaxWidth().wrapContentSize().clickable{ onEdit(expense) },
         colors = CardDefaults.cardColors(containerColor = Color.LightGray.copy(0.2f))
     ) {
         Row(
@@ -276,13 +278,24 @@ fun ExpenseItem(
                     }
                 }
             }
-            Text(
-                text = "${expense.amount}€",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary,
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.SemiBold
-            )
+
+            Row(modifier = Modifier.wrapContentSize(), horizontalArrangement = Arrangement.spacedBy(10.dp)){
+                Text(
+                    text = "${expense.amount}€",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.SemiBold
+                )
+               Icon(
+                   modifier = Modifier.clickable{ onDelete(expense.id) },
+                   imageVector = Icons.Default.Delete,
+                   contentDescription = "Delete",
+                   tint = Color.Red,
+               )
+
+            }
+
 
         }
     }
@@ -339,6 +352,7 @@ fun ExpenseListHeader(onBackClick: () -> Unit, numberOfExpenses: String, pocket:
     }
 
 }
+
 
 
 @OptIn(ExperimentalTime::class)
