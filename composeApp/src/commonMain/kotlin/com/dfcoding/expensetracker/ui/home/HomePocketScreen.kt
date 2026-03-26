@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -34,7 +33,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -62,33 +60,34 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.dfcoding.expensetracker.database.Expense
 import com.dfcoding.expensetracker.domain.model.Pocket
 import com.dfcoding.expensetracker.ui.addpocket.AddPocketScreen
-import com.dfcoding.expensetracker.ui.list.ExpenseListScreen
+import com.dfcoding.expensetracker.ui.expenses.ExpenseListScreen
+import com.dfcoding.expensetracker.ui.history.HistoryScreen
+import com.dfcoding.expensetracker.ui.settings.SettingsScreen
+import com.dfcoding.expensetracker.ui.statistics.StatisticsScreen
 import com.dfcoding.expensetracker.util.Formatter
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
-class HomePocketScreen : Screen {
+class HomePocketScreen(
+    private val onAddPocket: () -> Unit = {},
+    private val onEditPocket: (Long) -> Unit = {},
+    private val onDeletePocket: (Long) -> Unit = {},
+    private val onPocketClick: (Pocket) -> Unit = {}
+) : Screen {
     @Composable
     override fun Content() {
-        val navigator = LocalNavigator.currentOrThrow
         val viewModel = koinViewModel<HomePocketViewModel>()
 
         HomeScreen(
-            viewModel,
-            onAddPocket = { navigator.push(AddPocketScreen(null)) },
-            onEditPocket = { id ->
-                val pocketToEdit = viewModel.getPocketById(id)
-                navigator.push(AddPocketScreen(pocket = pocketToEdit))
-            },
-            onDeletePocket = { id ->
-                viewModel.deletePocket(id)
-            },
-            onPocketClick = { pocket ->
-                navigator.push(ExpenseListScreen(pocket))
-            })
+            viewModel = viewModel,
+            onAddPocket = onAddPocket,
+            onEditPocket = onEditPocket,
+            onDeletePocket = onDeletePocket,
+            onPocketClick = onPocketClick
+
+        )
     }
 }
 
@@ -118,7 +117,6 @@ fun HomeScreen(
 }
 
 @Composable
-@Preview
 fun HomeScreenStateless(
     pockets: List<Pocket>,
     expensesTotal: Double,
@@ -128,181 +126,169 @@ fun HomeScreenStateless(
     onDeletePocket: (Long) -> Unit = {},
     onPocketClick: (Pocket) -> Unit = {}
 ) {
-    Scaffold(bottomBar = {
-        HomeBottomBar(onNavigate = { screen ->
-            when (screen) {
-                "add" -> {
-                    onAddPocket()
-                }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
 
-                "home" -> {}
-            }
-        })
-    }) { padding ->
+        val purpleGradient = Brush.verticalGradient(
+            colors = listOf(
+                MaterialTheme.colorScheme.primary,
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.7f) // fades out at bottom
+            )
+        )
+
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = padding.calculateBottomPadding())
-        ) {
+                .fillMaxWidth()
+                .fillMaxHeight(0.6f)
+                .background(purpleGradient)
+        )
 
-            val purpleGradient = Brush.verticalGradient(
-                colors = listOf(
-                    MaterialTheme.colorScheme.primary,
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.7f) // fades out at bottom
+        //PURPLE AND WHITE CONTENT
+        Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
+            //TOP PART -- PURPLE PART
+
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(
+                    text = "Welcome Back \uD83D\uDC4B",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontFamily = FontFamily.Monospace,
                 )
-            )
+                Text(
+                    text = "My Pockets",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold
+                )
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.6f)
-                    .background(purpleGradient)
-            )
+                Spacer(modifier = Modifier.height(10.dp))
 
-            //PURPLE AND WHITE CONTENT
-            Column(modifier = Modifier.fillMaxSize()) {
-                //TOP PART -- PURPLE PART
+                //Stats Card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.15f)),
+                    shape = RoundedCornerShape(16.dp)
+                )
+                {
 
-                Column(
-                    modifier = Modifier.statusBarsPadding().fillMaxWidth().padding(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Text(
-                        text = "Welcome Back \uD83D\uDC4B",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = Color.White.copy(alpha = 0.8f),
-                        fontFamily = FontFamily.Monospace,
-                    )
-                    Text(
-                        text = "My Pockets",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.White,
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    //Stats Card
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.15f)),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    {
-
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            Text(
-                                "Total in Pockets",
-                                color = Color.White.copy(alpha = 0.85f),
-                                fontSize = 16.sp,
-                                fontFamily = FontFamily.Monospace,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Text(
-                                text = "$expensesTotalAmount €",
-                                color = Color.White.copy(alpha = 0.85f),
-                                fontSize = 32.sp,
-                                fontFamily = FontFamily.Monospace,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            HorizontalDivider(color = Color.White.copy(0.2f))
-                            Spacer(modifier = Modifier.height(1.dp))
-
-                            Row(modifier = Modifier.fillMaxWidth()) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        "Pockets",
-                                        color = Color.White.copy(alpha = 0.85f),
-                                        fontSize = 16.sp,
-                                        fontFamily = FontFamily.Monospace,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                    Text(
-                                        pockets.size.toString(),
-                                        color = Color.White,
-                                        style = MaterialTheme.typography.displaySmall
-                                    )
-                                }
-
-                                VerticalDivider(
-                                    modifier = Modifier
-                                        .height(40.dp)
-                                        .padding(horizontal = 16.dp),
-                                    color = Color.White.copy(alpha = 0.2f)
-                                )
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        "Expenses",
-                                        color = Color.White.copy(alpha = 0.85f),
-                                        fontSize = 16.sp,
-                                        fontFamily = FontFamily.Monospace,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                    Text(
-                                        text = expensesTotal.toInt().toString(),
-                                        color = Color.White,
-                                        style = MaterialTheme.typography.displaySmall,
-                                        fontFamily = FontFamily.Monospace,
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-
-                    Spacer(modifier = Modifier.height(10.dp)) // add this - increase until it looks right
-
-                }
-
-                //WHITE PART////////////////////////
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-                        .background(Color.White)
-                ) {
                     Column(
-                        modifier = Modifier.fillMaxSize()
-                            .background(Color.Transparent)
-                            .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 4.dp)
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        //Header
                         Text(
-                            "All Pockets",
-                            style = MaterialTheme.typography.labelLarge,
+                            "Total in Pockets",
+                            color = Color.White.copy(alpha = 0.85f),
+                            fontSize = 16.sp,
                             fontFamily = FontFamily.Monospace,
                             fontWeight = FontWeight.SemiBold
                         )
+                        Text(
+                            text = "$expensesTotalAmount €",
+                            color = Color.White.copy(alpha = 0.85f),
+                            fontSize = 32.sp,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold
+                        )
 
+                        HorizontalDivider(color = Color.White.copy(0.2f))
+                        Spacer(modifier = Modifier.height(1.dp))
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    "Pockets",
+                                    color = Color.White.copy(alpha = 0.85f),
+                                    fontSize = 16.sp,
+                                    fontFamily = FontFamily.Monospace,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    pockets.size.toString(),
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.displaySmall
+                                )
+                            }
 
-                        LazyColumn(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            items(pockets) { pocket ->
-                                PocketItem(
-                                    pocket = pocket,
-                                    onDeletePocket = onDeletePocket,
-                                    onEditPocket = onEditPocket,
-                                    onPocketClick = onPocketClick
+                            VerticalDivider(
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .padding(horizontal = 16.dp),
+                                color = Color.White.copy(alpha = 0.2f)
+                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    "Expenses",
+                                    color = Color.White.copy(alpha = 0.85f),
+                                    fontSize = 16.sp,
+                                    fontFamily = FontFamily.Monospace,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = expensesTotal.toInt().toString(),
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.displaySmall,
+                                    fontFamily = FontFamily.Monospace,
                                 )
                             }
                         }
                     }
                 }
 
+
+                Spacer(modifier = Modifier.height(10.dp)) // add this - increase until it looks right
+
+            }
+
+            //WHITE PART////////////////////////
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                    .background(Color.White)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                        .background(Color.Transparent)
+                        .padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 4.dp)
+                ) {
+                    //Header
+                    Text(
+                        "All Pockets",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(pockets) { pocket ->
+                            PocketItem(
+                                pocket = pocket,
+                                onDeletePocket = onDeletePocket,
+                                onEditPocket = onEditPocket,
+                                onPocketClick = onPocketClick
+                            )
+                        }
+                    }
+                }
             }
 
         }
+
     }
 }
+
 
 @Composable
 fun PocketItem(
@@ -342,9 +328,11 @@ fun PocketItem(
                     verticalArrangement = Arrangement.Center
 
                 ) {
-                    Text(text = pocket.name, style = MaterialTheme.typography.bodyLarge,
+                    Text(
+                        text = pocket.name, style = MaterialTheme.typography.bodyLarge,
                         fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.SemiBold)
+                        fontWeight = FontWeight.SemiBold
+                    )
                     Text(
                         text = Formatter.formatDate(pocket.date),
                         style = MaterialTheme.typography.bodySmall,
@@ -402,25 +390,28 @@ fun PocketItem(
 @Composable
 fun HomeBottomBar(
     currentRoute: String = "home",
-    onNavigate: (String) -> Unit = {}
+    onNavigateHome: () -> Unit = {},
+    onNavigateStats: () -> Unit = {},
+    onNavigateAdd: () -> Unit = {},
+    onNavigateHistory: () -> Unit = {},
+    onNavigateProfile: () -> Unit = {}
 ) {
     NavigationBar {
         NavigationBarItem(
             selected = currentRoute == "home",
-            onClick = { onNavigate("home") },
+            onClick = onNavigateHome,
             icon = { Icon(Icons.Default.Home, contentDescription = null) },
             label = { Text("Home") }
         )
         NavigationBarItem(
             selected = currentRoute == "stats",
-            onClick = { onNavigate("stats") },
+            onClick = onNavigateStats,
             icon = { Icon(Icons.Default.BarChart, contentDescription = null) },
             label = { Text("Stats") }
         )
-        // Center FAB
         NavigationBarItem(
             selected = false,
-            onClick = { onNavigate("add") },
+            onClick = onNavigateAdd,
             icon = {
                 Box(
                     modifier = Modifier
@@ -429,24 +420,20 @@ fun HomeBottomBar(
                         .background(MaterialTheme.colorScheme.primary),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        Icons.Default.Add,
-                        contentDescription = null,
-                        tint = Color.White
-                    )
+                    Icon(Icons.Default.Add, contentDescription = null, tint = Color.White)
                 }
             },
             label = { Text("") }
         )
         NavigationBarItem(
             selected = currentRoute == "history",
-            onClick = { onNavigate("history") },
+            onClick = onNavigateHistory,
             icon = { Icon(Icons.Default.History, contentDescription = null) },
             label = { Text("History") }
         )
         NavigationBarItem(
             selected = currentRoute == "profile",
-            onClick = { onNavigate("profile") },
+            onClick = onNavigateProfile,
             icon = { Icon(Icons.Default.Person, contentDescription = null) },
             label = { Text("Profile") }
         )

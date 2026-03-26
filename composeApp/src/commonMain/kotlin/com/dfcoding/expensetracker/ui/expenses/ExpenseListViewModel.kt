@@ -1,17 +1,15 @@
-package com.dfcoding.expensetracker.ui.list
+package com.dfcoding.expensetracker.ui.expenses
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dfcoding.expensetracker.data.repository.ExpenseRepository
 import com.dfcoding.expensetracker.domain.model.Expense
-import com.dfcoding.expensetracker.domain.model.ExpenseCategory
 import com.dfcoding.expensetracker.util.Formatter
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 
 class ExpenseListViewModel(
     private val repository: ExpenseRepository

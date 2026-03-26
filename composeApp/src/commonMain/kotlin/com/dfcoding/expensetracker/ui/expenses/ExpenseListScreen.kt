@@ -1,4 +1,4 @@
-package com.dfcoding.expensetracker.ui.list
+package com.dfcoding.expensetracker.ui.expenses
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

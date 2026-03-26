@@ -4,9 +4,12 @@ import com.dfcoding.expensetracker.data.local.ExpenseDatabaseWrapper
 import com.dfcoding.expensetracker.data.repository.ExpenseRepository
 import com.dfcoding.expensetracker.database.ExpenseDatabase
 import com.dfcoding.expensetracker.ui.addpocket.AddPocketViewModel
-import com.dfcoding.expensetracker.ui.list.ExpenseListViewModel
+import com.dfcoding.expensetracker.ui.expenses.ExpenseListViewModel
 import com.dfcoding.expensetracker.ui.home.HomePocketViewModel
 import com.dfcoding.expensetracker.ui.addupdate.AddExpenseViewModel
+import com.dfcoding.expensetracker.ui.history.HistoryScreenViewModel
+import com.dfcoding.expensetracker.ui.settings.SettingsScreenViewModel
+import com.dfcoding.expensetracker.ui.statistics.StatisticsScreenViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -26,6 +29,9 @@ val viewModelModule = module {
     viewModel { AddExpenseViewModel(get()) }
     viewModel { HomePocketViewModel(get()) }
     viewModel { AddPocketViewModel(get()) }
+    viewModel { StatisticsScreenViewModel(get()) }
+    viewModel { HistoryScreenViewModel(get()) }
+    viewModel { SettingsScreenViewModel(get()) }
 
 }
 

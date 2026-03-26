@@ -1,4 +1,4 @@
-package com.dfcoding.expensetracker.ui.list
+package com.dfcoding.expensetracker.ui.expenses
 
 import com.dfcoding.expensetracker.domain.model.Expense
 
