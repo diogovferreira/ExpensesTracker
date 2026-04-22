@@ -5,13 +5,16 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.dfcoding.expensetracker.database.ExpenseDatabase
+import com.dfcoding.expensetracker.database.GetExpensesWithPocket
 import com.dfcoding.expensetracker.database.GetTotalAmount
 import com.dfcoding.expensetracker.domain.model.Expense
 import com.dfcoding.expensetracker.domain.model.ExpenseCategory
+import com.dfcoding.expensetracker.domain.model.ExpenseWithPocket
 import com.dfcoding.expensetracker.domain.model.Pocket
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlin.math.exp
 
 class ExpenseDatabaseWrapper(
     database: ExpenseDatabase
@@ -19,10 +22,11 @@ class ExpenseDatabaseWrapper(
     private val queries = database.expenseQueries
 
     // Get all pockets as Flow
-    fun getAllPockets(): Flow<List<Pocket>>{
-        return queries.getAllPockets().asFlow().mapToList(Dispatchers.Default).map { pocketEntities ->
-            pocketEntities.map { it.toPocket() }
-         }
+    fun getAllPockets(): Flow<List<Pocket>> {
+        return queries.getAllPockets().asFlow().mapToList(Dispatchers.Default)
+            .map { pocketEntities ->
+                pocketEntities.map { it.toPocket() }
+            }
     }
 
     fun getPocketById(id: Long): Flow<Pocket?> {
@@ -56,8 +60,8 @@ class ExpenseDatabaseWrapper(
     }
 
     // Get all expenses as Flow
-    fun getAllExpenses(): Flow<List<Expense>> {
-        return queries.getAllExpenses()
+    fun getAllExpenses(pocketId: Long): Flow<List<Expense>> {
+        return queries.getAllExpenses(pocketId)
             .asFlow()
             .mapToList(Dispatchers.Default)
             .map { expenseEntities ->
@@ -129,6 +133,12 @@ class ExpenseDatabaseWrapper(
             .map { it.toDouble() }
     }
 
+    //Get Expenses with pocket Info
+    fun getExpensesWithPocketInfo(): Flow<List<ExpenseWithPocket>> {
+        return queries.getExpensesWithPocket().asFlow().mapToList(Dispatchers.Default)
+            .map { it.map { expenseWithPocket -> expenseWithPocket.toExpenseWithPocket() } }
+    }
+
     // Helper extension to convert DB entity to domain model
     private fun com.dfcoding.expensetracker.database.Expense.toExpense() = Expense(
         id = id,
@@ -145,5 +155,15 @@ class ExpenseDatabaseWrapper(
         icon = icon,
         date = date,
         currency = currency
+    )
+
+    private fun GetExpensesWithPocket.toExpenseWithPocket() = ExpenseWithPocket(
+        id = id,
+        description = description,
+        amount = amount,
+        date = date,
+        category = ExpenseCategory.valueOf(category),
+        pocketName = pocketName,
+        pocketIcon = pocketIcon
     )
 }

@@ -55,7 +55,6 @@ class StatisticsScreen : Screen {
 @Composable
 fun StatisticsContent(viewModel: StatisticsScreenViewModel) {
 
-
     StatisticsContentStateless()
 
 }

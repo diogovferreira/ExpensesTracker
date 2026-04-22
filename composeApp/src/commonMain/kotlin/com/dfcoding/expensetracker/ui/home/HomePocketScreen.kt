@@ -189,7 +189,7 @@ fun HomeScreenStateless(
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
-                            text = "$expensesTotalAmount €",
+                            text = "$expensesTotalAmount€",
                             color = Color.White.copy(alpha = 0.85f),
                             fontSize = 32.sp,
                             fontFamily = FontFamily.Monospace,

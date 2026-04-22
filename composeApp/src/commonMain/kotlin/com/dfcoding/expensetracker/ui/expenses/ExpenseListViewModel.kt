@@ -15,19 +15,14 @@ class ExpenseListViewModel(
     private val repository: ExpenseRepository
 ) : ViewModel() {
 
-    val expenses: StateFlow<List<Expense>> = repository.getAllExpenses()
-        .stateIn(
+
+    fun groupedExpenses(pocketId: Long): StateFlow<List<ExpenseListItem>> =
+        repository.getAllExpenses(pocketId).map { it.groupedByDate() }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
 
-    val groupedExpenses: StateFlow<List<ExpenseListItem>> =
-        expenses.map { it.groupedByDate() }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
 
     fun deleteExpense(id: Long) {
         viewModelScope.launch {

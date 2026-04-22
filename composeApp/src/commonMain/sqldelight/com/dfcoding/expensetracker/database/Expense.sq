@@ -12,7 +12,7 @@ CREATE TABLE Expense (
     category TEXT NOT NULL,
     description TEXT NOT NULL DEFAULT '',
     date INTEGER NOT NULL,
-    pocketId INTEGER REFERENCES Pocket(id) ON DELETE CASCADE
+    pocketId INTEGER NOT NULL REFERENCES Pocket(id) ON DELETE CASCADE
 );
 
 -- Queries
@@ -39,8 +39,7 @@ DELETE FROM Pocket
 WHERE id = ?;
 
 getAllExpenses:
-SELECT * FROM Expense
-ORDER BY date DESC;
+SELECT * FROM Expense WHERE pocketId = ? ORDER BY date DESC;
 
 getExpenseById:
 SELECT * FROM Expense
@@ -79,5 +78,17 @@ ORDER BY date DESC;
 getTotalNumberOfExpenses:
 SELECT COUNT(*) FROM Expense;
 
+getExpensesWithPocket:
+SELECT
+  Expense.id,
+  Expense.description,
+  Expense.amount,
+  Expense.date,
+  Expense.category,
+  Pocket.name AS pocketName,
+  Pocket.icon AS pocketIcon
+FROM Expense
+JOIN Pocket ON Expense.pocketId = Pocket.id
+ORDER BY Expense.date DESC;
 
 

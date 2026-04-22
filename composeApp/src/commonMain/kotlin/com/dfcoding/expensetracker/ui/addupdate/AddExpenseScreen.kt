@@ -59,7 +59,8 @@ import kotlin.math.exp
 
 
 data class AddExpenseScreen(
-    val expense: Expense? = null
+    val expense: Expense? = null,
+    var pocketId: Long
 ) : Screen {
     @Composable
     override fun Content() {
@@ -68,26 +69,28 @@ data class AddExpenseScreen(
 
         AddExpenseContent(
             onNavigateBack = { navigator.pop() },
-            onSaveExpense = { amount, category, description, date ->
+            onSaveExpense = { amount, category, description, date, id ->
                 if (expense != null) {
                     viewModel.saveExpense(
                         id = expense.id,
                         amount = amount,
                         category = category,
                         description = description,
-                        date = date
-
+                        date = date,
+                        pocketId = pocketId
                     )
                 } else {
                     viewModel.saveExpense(
                         amount = amount,
                         category = category,
                         description = description,
-                        date = date
+                        date = date,
+                        pocketId = pocketId
                     )
                 }
             },
-            expense
+            expense,
+            pocketId
         )
 
     }
@@ -98,22 +101,25 @@ data class AddExpenseScreen(
 @Composable
 private fun AddExpenseContent(
     onNavigateBack: () -> Unit,
-    onSaveExpense: (Double, ExpenseCategory, String, Long) -> Unit,
-    expense: Expense? = null
+    onSaveExpense: (Double, ExpenseCategory, String, Long, Long) -> Unit,
+    expense: Expense? = null,
+    pocketId: Long
 ) {
 
 
     AddExpenseListContentStateless(
         onNavigateBack = onNavigateBack,
-        onSaveExpense = { amount, category, description, date ->
+        onSaveExpense = { amount, category, description, date,pocketId ->
             onSaveExpense(
                 amount,
                 category,
                 description,
-                date
+                date,
+                pocketId
             )
         },
-        expense
+        expense,
+        pocketId
     )
 
 }
@@ -123,8 +129,9 @@ private fun AddExpenseContent(
 @Composable
 fun AddExpenseListContentStateless(
     onNavigateBack: () -> Unit,
-    onSaveExpense: (Double, ExpenseCategory, String, Long) -> Unit,
-    expense: Expense? = null
+    onSaveExpense: (Double, ExpenseCategory, String, Long, Long) -> Unit,
+    expense: Expense? = null,
+    pocketId: Long
 ) {
 
     val isEditing = expense != null
@@ -279,7 +286,7 @@ fun AddExpenseListContentStateless(
             onButtonClick = {
                 val amountValue = amount.toDoubleOrNull()
                 if (amountValue != null && amountValue > 0) {
-                    onSaveExpense(amountValue, selectedCategory, description, selectedDate)
+                    onSaveExpense(amountValue, selectedCategory, description, selectedDate,pocketId)
                     onNavigateBack()
                 }
             }
@@ -327,6 +334,7 @@ fun AddExpenseScreenPreview() {
     MaterialTheme {
         AddExpenseListContentStateless(
             onNavigateBack = {},
-            onSaveExpense = { _, _, _, _ -> })
+            onSaveExpense = { _, _, _, _, _-> },
+            pocketId = 1)
     }
 }

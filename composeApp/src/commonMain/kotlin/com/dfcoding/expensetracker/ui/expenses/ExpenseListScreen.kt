@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.util.Logger
 import com.dfcoding.expensetracker.domain.model.Expense
 import com.dfcoding.expensetracker.domain.model.ExpenseCategory
 import com.dfcoding.expensetracker.domain.model.Pocket
@@ -66,8 +68,8 @@ class ExpenseListScreen(val pocket: Pocket) : Screen {
         ExpenseListContent(
             viewModel = viewModel,
             pocket = pocket,
-            onAddExpense = { navigator.push(AddExpenseScreen()) },
-            onEditExpense = { expense -> navigator.push(AddExpenseScreen(expense)) },
+            onAddExpense = { navigator.push(AddExpenseScreen(pocketId = pocket.id)) },
+            onEditExpense = { expense -> navigator.push(AddExpenseScreen(expense,pocket.id)) },
             onDeleteExpense = { id -> viewModel.deleteExpense(id) },
             onNavigateBack = { navigator.pop() }
         )
@@ -77,7 +79,6 @@ class ExpenseListScreen(val pocket: Pocket) : Screen {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview
 fun ExpenseListContent(
     viewModel: ExpenseListViewModel = koinViewModel(),
     pocket: Pocket,
@@ -86,7 +87,12 @@ fun ExpenseListContent(
     onDeleteExpense: (Long) -> Unit = {},
     onNavigateBack: () -> Unit = {}
 ) {
-    val groupedExpenses by viewModel.groupedExpenses.collectAsState()
+
+    println("PocketID: ${pocket.id}")
+
+    val groupedExpenses by remember(pocket.id) {
+        viewModel.groupedExpenses(pocket.id)
+    }.collectAsState()
 
     ExpenseListContentStateless(
         groupedExpenses = groupedExpenses,
@@ -369,7 +375,8 @@ fun ExpenseListPreview() {
                         amount = 50.0,
                         category = ExpenseCategory.FOOD,
                         description = "Lunch",
-                        date = Clock.System.now().toEpochMilliseconds()
+                        date = Clock.System.now().toEpochMilliseconds(),
+                        pocketId = 1
                     )
 
                 )

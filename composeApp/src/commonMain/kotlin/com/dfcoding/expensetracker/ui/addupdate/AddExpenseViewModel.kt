@@ -17,7 +17,8 @@ class AddExpenseViewModel(
         amount: Double,
         category: ExpenseCategory,
         description: String,
-        date: Long
+        date: Long,
+        pocketId: Long
     ) {
         viewModelScope.launch {
             val expense = Expense(
@@ -25,7 +26,8 @@ class AddExpenseViewModel(
                 amount = amount,
                 category = category,
                 description = description,
-                date = date
+                date = date,
+                pocketId = pocketId
             )
 
             if (id != null) {
