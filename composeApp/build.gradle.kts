@@ -88,7 +88,13 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
+
         }
+
+       androidUnitTest.dependencies {
+           implementation("app.cash.sqldelight:sqlite-driver:2.3.2")
+       }
 
         iosMain.dependencies{
             implementation(libs.sqldelight.driver.native)
