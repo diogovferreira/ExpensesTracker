@@ -1,10 +1,30 @@
-Expense Tracker
+# Expense Tracker
+
 A Kotlin Multiplatform app targeting Android and iOS, built as a personal training project.
-Purpose
+
+## Purpose
+
 This project exists to train the following skills hands-on:
 
-SQLDelight — local database with type-safe SQL and reactive Flow-based queries
-Koin — multiplatform dependency injection
-Compose Multiplatform — shared UI across Android and iOS
-Voyager — screen navigation
-Unit Testing — repository and ViewModel layer using kotlin.test and Turbine
+- **SQLDelight** — local database with type-safe SQL and reactive `Flow`-based queries
+- **Koin** — multiplatform dependency injection
+- **Compose Multiplatform** — shared UI across Android and iOS
+- **Voyager** — screen navigation
+- **Unit Testing** — repository and ViewModel layer using `kotlin.test` and Turbine
+
+## Stack
+
+| Layer | Library |
+|---|---|
+| Database | SQLDelight 2.0+ |
+| DI | Koin 4.0 |
+| UI | Compose Multiplatform |
+| Navigation | Voyager |
+| Testing | kotlin.test, Turbine |
+
+## Project Structure
+
+```
+├── composeApp/     # Shared Compose UI, screens, ViewModels
+└── shared/         # Database schema, repositories, Koin modules
+```
