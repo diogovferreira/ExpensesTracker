@@ -225,7 +225,7 @@ fun CurrencyDropDown(
 
     var expanded by remember { mutableStateOf(false) }
 
-    val currencies = listOf("EUR", "USD", "GBP", "CHF", "JPY")
+    val currencies = listOf("EUR")
 
 
     ExposedDropdownMenuBox(
