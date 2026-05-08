@@ -2,14 +2,13 @@ package com.dfcoding.expensetracker.ui.addupdate
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dfcoding.expensetracker.data.repository.ExpenseRepository
+import com.dfcoding.expensetracker.data.repository.ExpenseRepositoryInterface
 import com.dfcoding.expensetracker.domain.model.Expense
 import com.dfcoding.expensetracker.domain.model.ExpenseCategory
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 
 class AddExpenseViewModel(
-    private val repository: ExpenseRepository,
+    private val repository: ExpenseRepositoryInterface,
 ) : ViewModel() {
 
     fun saveExpense(

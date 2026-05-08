@@ -2,12 +2,12 @@ package com.dfcoding.expensetracker.ui.addpocket
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dfcoding.expensetracker.data.repository.ExpenseRepository
+import com.dfcoding.expensetracker.data.repository.ExpenseRepositoryInterface
 import com.dfcoding.expensetracker.domain.model.Pocket
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 
-class AddPocketViewModel(private val repository: ExpenseRepository) : ViewModel() {
+class AddPocketViewModel(private val repository: ExpenseRepositoryInterface) : ViewModel() {
 
     fun addPocket(name: String, icon: String,currency: String){
         viewModelScope.launch {

@@ -2,6 +2,7 @@ package com.dfcoding.expensetracker.di
 
 import com.dfcoding.expensetracker.data.local.ExpenseDatabaseWrapper
 import com.dfcoding.expensetracker.data.repository.ExpenseRepository
+import com.dfcoding.expensetracker.data.repository.ExpenseRepositoryInterface
 import com.dfcoding.expensetracker.database.ExpenseDatabase
 import com.dfcoding.expensetracker.ui.addpocket.AddPocketViewModel
 import com.dfcoding.expensetracker.ui.expenses.ExpenseListViewModel
@@ -20,7 +21,7 @@ val dataModule = module {
 
     single { ExpenseDatabase(get()) }
     single { ExpenseDatabaseWrapper(get()) }
-    single { ExpenseRepository(get()) }
+    single<ExpenseRepositoryInterface> { ExpenseRepository(get()) }
 
 }
 

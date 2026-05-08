@@ -8,7 +8,6 @@ import com.dfcoding.expensetracker.domain.model.ExpenseCategory
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
-import kotlin.math.exp
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
