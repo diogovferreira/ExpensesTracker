@@ -39,7 +39,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -58,14 +57,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import com.dfcoding.expensetracker.domain.model.Pocket
-import com.dfcoding.expensetracker.ui.addpocket.AddPocketScreen
-import com.dfcoding.expensetracker.ui.expenses.ExpenseListScreen
-import com.dfcoding.expensetracker.ui.history.HistoryScreen
-import com.dfcoding.expensetracker.ui.settings.SettingsScreen
-import com.dfcoding.expensetracker.ui.statistics.StatisticsScreen
 import com.dfcoding.expensetracker.util.Formatter
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
